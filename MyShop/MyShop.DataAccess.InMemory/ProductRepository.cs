@@ -10,7 +10,7 @@ using MyShop.Core.Models;
 
 namespace MyShop.DataAccess.InMemory
 {
-    class ProductRepository
+    public class ProductRepository
     {
        //create a local cache memory simulation of a database
        ObjectCache cache = MemoryCache.Default;
