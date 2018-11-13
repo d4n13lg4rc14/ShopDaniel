@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Caching;
 using System.Text;
 using System.Threading.Tasks;
+using MyShop.Core.Contracts;
 using MyShop.Core.Models;
 
 namespace MyShop.DataAccess.InMemory
@@ -14,7 +15,7 @@ namespace MyShop.DataAccess.InMemory
     //the generic class doesnt know any ID, so it will not recognize the Id propriety when called, for example Update method
     //to fix this issue, we create an abstract class, call BaseEntity, which contain a field called Id
     //then we tell the Generic class that T will be alway a type Base Entity or of type that inherits the BaseEntity Class
-    public class InMemoryRepository<T> where T : BaseEntity
+    public class InMemoryRepository<T> : IRepository<T> where T : BaseEntity
     {
         ObjectCache cache = MemoryCache.Default;
         List<T> items;

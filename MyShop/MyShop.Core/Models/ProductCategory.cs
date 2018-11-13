@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using MyShop.Core.Models;
 
-namespace MyShop.Core
+namespace MyShop.Core.Models
 {
     public class ProductCategory : BaseEntity
     {
