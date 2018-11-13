@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MyShop.Core.Models;
 
 namespace MyShop.Core
 {
-    public class ProductCategory
+    public class ProductCategory : BaseEntity
     {
-        public string Id { get; set; }
+        
         public string Category { get; set; }
 
-        public ProductCategory()
-        {
-            this.Id = Guid.NewGuid().ToString();
-        }
+       
     }
 }
