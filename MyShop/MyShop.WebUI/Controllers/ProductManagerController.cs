@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
@@ -39,7 +40,7 @@ namespace MyShop.WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Create(Product product)
+        public ActionResult Create(Product product, HttpPostedFileBase file) //last argument was inserted in order to be able to access the file attached
         {
             if (!ModelState.IsValid)
             {
@@ -47,6 +48,13 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
+                //first check if the file exists
+                if (file != null)
+                {
+                    //in the product field from the Model Product put the name of the image file by combining the product id and the file extension
+                    product.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + product.Image); //after that you save the file in the specific folder
+                }
                 context.Insert(product);
                 context.Commit();
 
@@ -72,7 +80,7 @@ namespace MyShop.WebUI.Controllers
         }
 
         [HttpPost]
-        public ActionResult Edit(Product product, string Id)
+        public ActionResult Edit(Product product, string Id, HttpPostedFileBase file)
         {
             Product productToEdit = context.Find(Id);
 
@@ -82,6 +90,13 @@ namespace MyShop.WebUI.Controllers
             }
             else
             {
+                if (file != null)
+                {
+                    //in the product field from the Model Product put the name of the image file by combining the product id and the file extension
+                    productToEdit.Image = product.Id + Path.GetExtension(file.FileName);
+                    file.SaveAs(Server.MapPath("//Content//ProductImages//") + productToEdit.Image); //after that you save the file in the specific folder
+                }
+
                 if (!ModelState.IsValid)
                 {
                     return View(product);
@@ -89,7 +104,6 @@ namespace MyShop.WebUI.Controllers
 
                 productToEdit.Category = product.Category;
                 productToEdit.Description = product.Description;
-                productToEdit.Image = product.Image;
                 productToEdit.Name = product.Name;
                 productToEdit.Price = product.Price;
 
