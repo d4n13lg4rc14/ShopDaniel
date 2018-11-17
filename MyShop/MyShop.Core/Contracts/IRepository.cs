@@ -3,6 +3,7 @@ using MyShop.Core.Models;
 
 namespace MyShop.Core.Contracts
 {
+    //declare all repositories methods we want to use
     public interface IRepository<T> where T : BaseEntity
     {
         IQueryable<T> Collection();

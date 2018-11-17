@@ -23,6 +23,7 @@ namespace MyShop.DataAccess.InMemory
 
         public InMemoryRepository()
         {
+            //reflection, use command type  "typeof" get the name of the class
             className = typeof(T).Name;
 
             items = cache[className] as List<T>;

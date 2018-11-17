@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace MyShop.Core.Models
 {
+    /// <summary>
+    /// class that will be inherited by all the other model classes, to guarantee a ID will be always present
+    /// Make the class abstract, so it wont be instantiate, it will be only inherited
+    /// </summary>
     public abstract class BaseEntity
     {
         public string Id { get; set; }
