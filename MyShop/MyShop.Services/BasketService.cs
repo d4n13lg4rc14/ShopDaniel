@@ -210,5 +210,13 @@ namespace MyShop.Services
                 return model;
             }
         }
+
+        //this method will clear the basket once the order is placed
+        public void ClearBasket(HttpContextBase httpContext)
+        {
+            Basket basket = GetBaskets(httpContext, false);
+            basket.BasketItems.Clear();
+            basketContext.Commit();
+        }
     }
 }
