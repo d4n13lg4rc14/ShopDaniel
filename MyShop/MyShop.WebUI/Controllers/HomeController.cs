@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using MyShop.Core.ViewModels;
 
 namespace MyShop.WebUI.Controllers
 {
@@ -20,10 +21,29 @@ namespace MyShop.WebUI.Controllers
             productCategories = productCategoryContext;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(string Category=null) //what this means is 1-you can have a null item, 2-if we dont pass anything in we assume it is null
         {
-            List<Product> products = context.Collection().ToList();
-            return View(products);
+            List<Product> products;
+            List<ProductCategory> categories = productCategories.Collection().ToList();
+
+            if (Category == null)
+            {
+                products = context.Collection().ToList();
+            }
+            else
+            {
+                //this is the reason we originally exposed the Collection as a IQuerible, so we could use a where clause
+                //it will allow the construction of a filter, which means, in Entity Frameword, it will convert in a SQL statement that will filter the statement
+                products = context.Collection().Where(p => p.Category == Category).ToList();
+
+            }
+
+            ProductListViewModel model = new ProductListViewModel();
+            model.Products = products;
+            model.ProductCategories = categories;
+
+            return View(model);
+
         }
 
         public ActionResult Details(string Id)
