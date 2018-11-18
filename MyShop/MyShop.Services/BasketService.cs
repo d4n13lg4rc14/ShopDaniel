@@ -6,10 +6,11 @@ using System.Threading.Tasks;
 using System.Web;
 using MyShop.Core.Contracts;
 using MyShop.Core.Models;
+using MyShop.Core.ViewModels;
 
 namespace MyShop.Services
 {
-    public class BasketService
+    public class BasketService : IBasketServices
     {
         //give the context for both tables in our database - Product and Basket
         IRepository<Product> productContext;
@@ -131,6 +132,82 @@ namespace MyShop.Services
             {
                 basket.BasketItems.Remove(item);
                 basketContext.Commit();
+            }
+        }
+
+        /// <summary>
+        /// this method will return a list of items which are in the basket, when access the basket page
+        /// </summary>
+        /// <param name="httpContext"></param>
+        /// <returns></returns>
+        public List<BasketItemViewModel> GetBasketItems(HttpContextBase httpContext)
+        {
+            //get the basket from the database
+            //because we are just retrieving items, if the basket doesnt actually exist, we dont want to go ahead and create it
+            //if there is not items at the basket at the moment, we will only return a empty in memory basket
+            Basket basket = GetBaskets(httpContext, false);
+
+            //if the basket exists
+            if (basket != null)
+            {
+                //we will perform a query and inner join in both basket items and product table
+                var results = (from b in basket.BasketItems
+                    join p in productContext.Collection() on b.ProductId equals p.Id
+                    select new
+                        BasketItemViewModel() //the information retrieved from the query will be them stored in a new object of the basket view model
+                        {
+                            Id = b.Id,
+                            Quantity = b.Quantity,
+                            Price = p.Price,
+                            ProductName = p.Name,
+                            Image = p.Image
+                        }).ToList();
+
+                return results;
+            }
+            else
+            {
+                return new List<BasketItemViewModel>();
+            }
+        }
+
+        //We also want to provide a basket summary which will simple be a total list of all the items and total qtity in the basket
+        public BasketSummaryViewModel GetBasketSummary(HttpContextBase httpContext)
+        {
+            //again if the basket is currently empty, we dont want to create a new basket, so thats why we pass the false value
+            Basket basket = GetBaskets(httpContext, false);
+
+            BasketSummaryViewModel model = new BasketSummaryViewModel(0,0);
+
+            //if the basket exists, we will need to perform some calculations to obtain the totals of items
+            if (basket != null)
+            {
+                //need to calculate how many items are in the basket, using a LINQ query select just the quantity of each item in our basket
+                //and then sum them up
+                //we declare a integer, but with a question mark. This means that we can store a null value in this integer
+                //if the sum of the item in the basket being null because there is no basket items
+                int? basketCount = (from item in basket.BasketItems select item.Quantity).Sum();
+
+                //same situation as the basket count, execpt that this time to obtain the total we will need to access the product
+                //which is done by performing a inner join
+                //finally the resul will be displayed as a sum of the item quantity multiplied by the price
+                //again, if the basket is empty the value returned will be empty, which can be stored in decimal since it has been declared with a question mark
+                decimal? basketTotal = (from item in basket.BasketItems
+                    join p in productContext.Collection() on item.ProductId equals p.Id
+                    select item.Quantity * p.Price).Sum();
+
+                //the final step is to assign these values to the model
+                //in case there is not basket items, we need to return zero
+                //with an inline if statment for a null value(two questions marks "??") we can check if both basketCount and basketTotal are null
+                //if they are null, we will be assigning zero to those fields
+                model.BasketCount = basketCount ?? 0;
+                model.BasketTotal = basketTotal ?? decimal.Zero; //if it is null return decima.Zero, which is better defined zero
+
+                return model;
+            }
+            else
+            {
+                return model;
             }
         }
     }
